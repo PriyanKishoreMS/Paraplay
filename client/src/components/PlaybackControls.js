@@ -202,7 +202,7 @@ export default forwardRef(
 							min={0}
 							max={100}
 							value={played * 100}
-							valueLabelDisplay='auto'
+							// valueLabelDisplay={elapsedTime}
 							onChange={onSeek}
 							onMouseDown={onSeekMouseDown}
 							onChangeCommitted={onSeekMouseUp}

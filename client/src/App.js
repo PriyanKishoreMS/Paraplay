@@ -40,17 +40,36 @@ const format = seconds => {
 };
 
 let count = 0;
+const rooms = [];
 
 const App = () => {
 	const classes = useStyles();
 
-	const [room, setRoom] = useState("");
+	const makeroom = length => {
+		var result = "";
+		var characters =
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		var charactersLength = characters.length;
+		for (var i = 0; i < length; i++) {
+			result += characters.charAt(Math.floor(Math.random() * charactersLength));
+		}
+		return result;
+	};
+
+	var [room, setRoom] = useState("");
 
 	const joinRoom = () => {
 		if (room !== "") {
+			localStorage.setItem("last-room", room);
 			socket.emit("join-room", room);
 			alert(`Joined room ${room}`);
-		}
+			rooms.push(room.toString());
+			alert(rooms);
+			if (rooms.length > 1 && rooms[0] !== rooms[1]) {
+				socket.emit("leave-room", rooms[0]);
+			}
+			rooms.shift();
+		} else alert("Please enter a room name");
 	};
 
 	const [state, setState] = useState({
@@ -59,7 +78,7 @@ const App = () => {
 		seeking: false,
 		muted: false,
 		volume: 0.8,
-		playbackRate: 1.0,
+		playbackRate: 1,
 	});
 
 	const { playing, played, volume, muted, playbackRate } = state;
@@ -79,6 +98,33 @@ const App = () => {
 		socket.emit("send-data", "play", room);
 	};
 
+	const handlePlay = () => {
+		// setState({ ...state, playing: true });
+		socket.emit(
+			"send-state",
+			{
+				playing: true,
+				rate: playbackRate,
+				time: playerRef.current.getCurrentTime(),
+			},
+			room
+		);
+	};
+
+	const handlePause = () => {
+		// setState({ ...state, playing: false });
+		// socket.emit("send-state", "pause", room);
+		socket.emit(
+			"send-state",
+			{
+				playing: false,
+				rate: playbackRate,
+				time: playerRef.current.getCurrentTime(),
+			},
+			room
+		);
+	};
+
 	const handleRewind = () => {
 		// playerRef.current.seekTo(playerRef.current.getCurrentTime() - 10);
 		socket.emit("send-rewind", playerRef.current.getCurrentTime() - 10, room);
@@ -96,7 +142,7 @@ const App = () => {
 			count = 0;
 		}
 
-		if (controlsRef.current.style.visibility == "visible") count += 1;
+		if (controlsRef.current.style.visibility === "visible") count += 1;
 
 		if (!state.seeking) {
 			setState({ ...state, ...changeState });
@@ -170,14 +216,40 @@ const App = () => {
 	const totalDuration = format(duration);
 
 	React.useEffect(() => {
+		const lastroom = localStorage.getItem("last-room");
+		const newroom = makeroom(5);
+		const localurl = localStorage.getItem("last-url");
+		if (lastroom) {
+			// room = lastroom;
+			setRoom(lastroom);
+			socket.emit("join-room", lastroom);
+			rooms.push(lastroom.toString());
+		}
+		if (!lastroom && room === "") {
+			setRoom(newroom);
+			socket.emit("join-room", newroom);
+			rooms.push(room.toString());
+		}
+		if (localurl) {
+			setUrl(localurl);
+			setPlay(localurl);
+		}
+	}, []);
+
+	React.useEffect(() => {
+		localStorage.setItem("last-room", room);
+		localStorage.setItem("last-url", play);
+
 		socket.on("recv-url", url => {
 			setPlay(url);
 		});
+
 		socket.on("recv-data", data => {
 			if (data === "play") {
 				setState({ ...state, playing: !state.playing });
 			}
 		});
+
 		socket.on("recv-seek", seek => {
 			playerRef.current.seekTo(seek);
 		});
@@ -192,6 +264,16 @@ const App = () => {
 
 		socket.on("recv-rate", rate => {
 			setState({ ...state, playbackRate: rate });
+		});
+
+		socket.on("recv-state", state => {
+			if (state.playing === true) {
+				setState({ ...state, playing: true, playbackRate: state.rate });
+				if (Math.abs(playerRef.current.getCurrentTime() - state.time) > 1)
+					playerRef.current.seekTo(state.time);
+			} else {
+				setState({ ...state, playing: false, playbackRate: state.rate });
+			}
 		});
 	});
 
@@ -255,6 +337,8 @@ const App = () => {
 						height={"100%"}
 						url={play}
 						playing={playing}
+						onPlay={handlePlay}
+						onPause={handlePause}
 						controls={false}
 						volume={volume}
 						muted={muted}

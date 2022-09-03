@@ -27,6 +27,10 @@ io.on("connection", socket => {
 		io.to(room).emit("recv-data", data);
 	});
 
+	socket.on("send-state", (state, room) => {
+		io.to(room).emit("recv-state", state);
+	});
+
 	socket.on("send-seek", (seek, room) => {
 		io.to(room).emit("recv-seek", seek);
 	});
@@ -46,6 +50,11 @@ io.on("connection", socket => {
 	socket.on("join-room", room => {
 		socket.join(room);
 		console.log(`User ${socket.id} joined ${room}`);
+	});
+
+	socket.on("leave-room", room => {
+		socket.leave(room);
+		console.log(`User ${socket.id} left ${room}`);
 	});
 });
 
