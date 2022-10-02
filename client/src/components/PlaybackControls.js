@@ -41,6 +41,20 @@ const useStyles = makeStyles({
 	},
 });
 
+const iconLeftStyle = {
+	color: "#fff",
+	fontSize: 75,
+	marginRight: 32,
+	opacity: 0.8,
+};
+
+const iconRightStyle = {
+	color: "#fff",
+	fontSize: 75,
+	marginLeft: 32,
+	opacity: 0.8,
+};
+
 function ValueLabelComponent(props) {
 	const { children, value } = props;
 
@@ -152,12 +166,7 @@ export default forwardRef(
 					<IconButton
 						onClick={onRewind}
 						className={classes.controlIcons}
-						style={{
-							color: "#fff",
-							fontSize: 75,
-							marginRight: 64,
-							opacity: 0.8,
-						}}
+						style={iconLeftStyle}
 						aria-label='rewind'
 					>
 						<Replay10RoundedIcon fontSize='inherit' />
@@ -179,12 +188,7 @@ export default forwardRef(
 					<IconButton
 						onClick={onForward}
 						className={classes.controlIcons}
-						style={{
-							color: "#fff",
-							fontSize: 75,
-							marginLeft: 64,
-							opacity: 0.8,
-						}}
+						style={iconRightStyle}
 						aria-label='forward'
 					>
 						<Forward10RoundedIcon fontSize='inherit' />
@@ -238,7 +242,7 @@ export default forwardRef(
 							<Button
 								onClick={handlePopover}
 								variant='text'
-								style={{ width: 100, color: "#fff", width: 50 }}
+								style={{ color: "#fff", width: 50 }}
 							>
 								<Typography>{playbackRate}X</Typography>
 							</Button>
@@ -256,14 +260,19 @@ export default forwardRef(
 									horizontal: "center",
 								}}
 							>
-								<Grid container direction='column-reverse' alignItems='center'>
+								<Grid
+									container
+									direction='column-reverse'
+									alignItems='center'
+									style={{ backgroundColor: "#343434" }}
+								>
 									{[0.5, 1, 1.5, 2].map(rate => (
 										<Button
 											onClick={() => onPlaybackRateChange(rate)}
 											variant='text'
 										>
 											<Typography
-												color={rate === playbackRate ? "secondary" : "default"}
+												color={rate === playbackRate ? "primary" : "#fff"}
 											>
 												{rate}
 											</Typography>
@@ -292,7 +301,7 @@ export default forwardRef(
 							/>
 							<IconButton
 								onClick={onToggleFullScreen}
-								style={{ width: 100, color: "#fff", width: 50 }}
+								style={{ color: "#fff", width: 50 }}
 							>
 								<FullscreenRounded fontSize='large' />
 							</IconButton>
@@ -303,5 +312,3 @@ export default forwardRef(
 		);
 	}
 );
-
-// export default PlaybackControls;
