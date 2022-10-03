@@ -29,7 +29,7 @@ const theme = createTheme({
 	},
 });
 
-const socket = io.connect("http://localhost:5000");
+const socket = io.connect("https://paraplay-server.herokuapp.com/");
 
 const useStyles = makeStyles({
 	playerWrapper: {
@@ -313,7 +313,7 @@ const Player = () => {
 							style={{
 								width: "100%",
 								marginTop: 20,
-								// backgroundColor: "#343434",
+								backgroundColor: "#343434",
 							}}
 							focused
 						/>
