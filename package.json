@@ -4,8 +4,8 @@
     "cors": "^2.8.5",
     "express": "^4.18.1",
     "http": "^0.0.1-security",
-    "screenfull": "^6.0.2",
-    "socket.io": "^4.5.1"
+    "socket.io": "^4.5.1",
+    "superheroes": "^3.0.0"
   },
   "scripts": {
     "start": "node server.js",

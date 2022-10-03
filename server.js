@@ -4,19 +4,24 @@ const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
 const cors = require("cors");
+const superheroes = require("superheroes");
 
 const io = new Server(server, {
 	cors: {
-		origin: "http://localhost:3000",
+		origin: "https://paraplay.netlify.app/",
 		methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
 		credentials: true,
 	},
 });
 
 io.on("connection", socket => {
-	console.log(`User ${socket.id} connected`);
+	const username = superheroes.random();
+	const users = {};
+	users[socket.id] = username;
+	console.log(`User ${users[socket.id]} connected`);
+
 	socket.on("disconnect", () => {
-		console.log(`User ${socket.id} disconnected`);
+		console.log(`User ${users[socket.id]} disconnected`);
 	});
 
 	socket.on("send-url", (id, room) => {
@@ -24,6 +29,10 @@ io.on("connection", socket => {
 	});
 
 	socket.on("send-data", (data, room) => {
+		// const clients = io.sockets.adapter.rooms.get(room);
+		// const first = [...clients][0];
+		// console.log(first);
+		// if (first === socket.id)
 		io.to(room).emit("recv-data", data);
 	});
 
@@ -49,12 +58,18 @@ io.on("connection", socket => {
 
 	socket.on("join-room", room => {
 		socket.join(room);
-		console.log(`User ${socket.id} joined ${room}`);
+		console.log(`User ${users[socket.id]} joined ${room}`);
+		const clients = io.sockets.adapter.rooms.get(room);
+		if (clients.size > 1) {
+			console.log(`Users in ${room}: ${clients.size}`);
+			console.log(clients);
+			console.log("\n");
+		}
 	});
 
 	socket.on("leave-room", room => {
 		socket.leave(room);
-		console.log(`User ${socket.id} left ${room}`);
+		console.log(`User ${users[socket.id]} left ${room}`);
 	});
 });
 
