@@ -8,7 +8,7 @@ const superheroes = require("superheroes");
 
 const io = new Server(server, {
 	cors: {
-		origin: "https://paraplay.netlify.app/",
+		origin: "https://localhost:3000",
 		methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
 		credentials: true,
 	},
