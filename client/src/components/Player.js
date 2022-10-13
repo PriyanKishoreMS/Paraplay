@@ -29,7 +29,7 @@ const theme = createTheme({
 	},
 });
 
-const socket = io.connect("https://paraplay-server.herokuapp.com/");
+const socket = io.connect("http://localhost:5000");
 
 const useStyles = makeStyles({
 	playerWrapper: {
@@ -70,8 +70,12 @@ const Player = () => {
 		}
 		return result;
 	};
+	// const urlPerRoom = {};
 
 	const joinRoom = () => {
+		// const link = urlState();
+		// if (link !== "") socket.emit("send-video-link", link, room);
+		// alert(link);
 		if (room !== "") {
 			localStorage.setItem("last-room", room);
 			socket.emit("join-room", room);
@@ -222,6 +226,25 @@ const Player = () => {
 		count = 0;
 	};
 
+	const handleUrlSubmit = () => {
+		socket.emit("send-url", url, room);
+	};
+
+	// const urlState = () => {
+	// 	if (urlPerRoom[room] === undefined) {
+	// 		urlPerRoom[room] = [];
+	// 	}
+
+	// 	const newLink = {
+	// 		url: url,
+	// 	};
+	// 	urlPerRoom[room].push(newLink);
+	// 	if (urlPerRoom[room].length > 1) {
+	// 		urlPerRoom[room].shift();
+	// 	}
+	// 	return urlPerRoom[room][0].url;
+	// };
+
 	const currentTime = playerRef.current
 		? playerRef.current.getCurrentTime()
 		: "00:00";
@@ -259,6 +282,7 @@ const Player = () => {
 		localStorage.setItem("last-url", play);
 
 		socket.on("recv-url", url => {
+			setUrl(url);
 			setPlay(url);
 		});
 
@@ -327,7 +351,7 @@ const Player = () => {
 							// }}
 							variant='contained'
 							style={{ marginTop: 20 }}
-							onClick={() => socket.emit("send-url", url, room)}
+							onClick={() => handleUrlSubmit()}
 						>
 							Search
 						</Button>

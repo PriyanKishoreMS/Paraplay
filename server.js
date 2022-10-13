@@ -8,7 +8,7 @@ const superheroes = require("superheroes");
 
 const io = new Server(server, {
 	cors: {
-		origin: "https://localhost:3000",
+		origin: "http://localhost:3000",
 		methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
 		credentials: true,
 	},
@@ -55,6 +55,10 @@ io.on("connection", socket => {
 	socket.on("send-rate", (rate, room) => {
 		io.to(room).emit("recv-rate", rate);
 	});
+
+	// socket.on("send-video-link", (link, room) => {
+	// 	socket.broadcast.to(room).emit("recv-video-link", link);
+	// });
 
 	socket.on("join-room", room => {
 		socket.join(room);
